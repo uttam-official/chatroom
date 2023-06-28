@@ -1,5 +1,7 @@
 <?php
+
 namespace Ratchet\Server;
+
 use Ratchet\MessageComponentInterface;
 use React\EventLoop\LoopInterface;
 use React\Socket\ServerInterface;
@@ -11,7 +13,8 @@ use React\Socket\SecureServer as SecureReactor;
  * Creates an open-ended socket to listen on a port for incoming connections.
  * Events are delegated through this to attached applications
  */
-class IoServer {
+class IoServer
+{
     /**
      * @var \React\EventLoop\LoopInterface
      */
@@ -33,7 +36,8 @@ class IoServer {
      * @param \React\Socket\ServerInterface       $socket   The React socket server to run the Ratchet application off of
      * @param \React\EventLoop\LoopInterface|null $loop     The React looper to run the Ratchet application off of
      */
-    public function __construct(MessageComponentInterface $app, ServerInterface $socket, LoopInterface $loop = null) {
+    public function __construct(MessageComponentInterface $app, ServerInterface $socket, LoopInterface $loop = null)
+    {
         if (false === strpos(PHP_VERSION, "hiphop")) {
             gc_enable();
         }
@@ -54,10 +58,11 @@ class IoServer {
      * @param  string                             $address    The address to receive sockets on (0.0.0.0 means receive connections from any)
      * @return IoServer
      */
-    public static function factory(MessageComponentInterface $component, $port = 80, $address = '0.0.0.0') {
+    public static function factory(MessageComponentInterface $component, $port = 80, $address = '0.0.0.0')
+    {
         $loop   = LoopFactory::create();
         $socket = new Reactor($address . ':' . $port, $loop);
-
+        echo $address;
         return new static($component, $socket, $loop);
     }
 
@@ -65,7 +70,8 @@ class IoServer {
      * Run the application by entering the event loop
      * @throws \RuntimeException If a loop was not previously specified
      */
-    public function run() {
+    public function run()
+    {
         if (null === $this->loop) {
             throw new \RuntimeException("A React Loop was not provided during instantiation");
         }
@@ -79,7 +85,8 @@ class IoServer {
      * Triggered when a new connection is received from React
      * @param \React\Socket\ConnectionInterface $conn
      */
-    public function handleConnect($conn) {
+    public function handleConnect($conn)
+    {
         $conn->decor = new IoConnection($conn);
         $conn->decor->resourceId = (int)$conn->stream;
 
@@ -107,7 +114,8 @@ class IoServer {
      * @param string                            $data
      * @param \React\Socket\ConnectionInterface $conn
      */
-    public function handleData($data, $conn) {
+    public function handleData($data, $conn)
+    {
         try {
             $this->app->onMessage($conn->decor, $data);
         } catch (\Exception $e) {
@@ -119,7 +127,8 @@ class IoServer {
      * A connection has been closed by React
      * @param \React\Socket\ConnectionInterface $conn
      */
-    public function handleEnd($conn) {
+    public function handleEnd($conn)
+    {
         try {
             $this->app->onClose($conn->decor);
         } catch (\Exception $e) {
@@ -134,7 +143,8 @@ class IoServer {
      * @param \Exception                        $e
      * @param \React\Socket\ConnectionInterface $conn
      */
-    public function handleError(\Exception $e, $conn) {
+    public function handleError(\Exception $e, $conn)
+    {
         $this->app->onError($conn->decor, $e);
     }
 }

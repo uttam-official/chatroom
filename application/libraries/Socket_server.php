@@ -15,8 +15,8 @@ class Socket_server
                     new Socket()
                 )
             ),
-            9500
-            // ,'192.168.1.5'
+            9500,
+            '192.168.29.138'
         );
 
         $server->run();
